@@ -1,0 +1,83 @@
+#include <iostream>
+#include <map>
+#include <string>
+
+struct Book {
+    std::string title;
+    std::string author;
+    std::string isbn;
+    bool isAvailable;
+
+    // Default constructor
+    Book() : title(""), author(""), isbn(""), isAvailable(false) {}
+
+    // Parameterized constructor
+    Book(const std::string& t, const std::string& a, const std::string& i) 
+        : title(t), author(a), isbn(i), isAvailable(true) {}
+};
+
+class Library {
+private:
+    std::map<std::string, Book> books; // Keyed by ISBN
+    std::map<std::string, std::string> checkoutRecords; // ISBN to borrower ID
+    std::map<std::string, int> fines; // Borrower ID to fine amount
+
+public:
+    void addBook(const std::string& title, const std::string& author, const std::string& isbn) {
+        books[isbn] = Book(title, author, isbn);
+        std::cout << "Book added: " << title << std::endl;
+    }
+
+    void searchBook(const std::string& searchTerm) {
+        bool found = false;
+        for (const auto& pair : books) {
+            const Book& book = pair.second;
+            if (book.title.find(searchTerm) != std::string::npos || book.author.find(searchTerm) != std::string::npos || book.isbn == searchTerm) {
+                std::cout << "Found Book - Title: " << book.title << ", Author: " << book.author << ", ISBN: " << book.isbn << std::endl;
+                found = true;
+            }
+        }
+        if (!found) {
+            std::cout << "No books found matching that description." << std::endl;
+        }
+    }
+
+    void checkoutBook(const std::string& isbn, const std::string& borrowerId) {
+        if (books.find(isbn) != books.end() && books[isbn].isAvailable) {
+            books[isbn].isAvailable = false;
+            checkoutRecords[isbn] = borrowerId;
+            std::cout << "Book " << books[isbn].title << " checked out to " << borrowerId << std::endl;
+        } else {
+            std::cout << "Book is not available for checkout." << std::endl;
+        }
+    }
+
+    void returnBook(const std::string& isbn) {
+        if (checkoutRecords.find(isbn) != checkoutRecords.end()) {
+            books[isbn].isAvailable = true;
+            checkoutRecords.erase(isbn);
+            std::cout << "Book returned: " << books[isbn].title << std::endl;
+        } else {
+            std::cout << "This book was not checked out." << std::endl;
+        }
+    }
+
+    void calculateFine(const std::string& borrowerId, int daysLate) {
+        const int dailyFine = 1; // $1 per day late
+        fines[borrowerId] += daysLate * dailyFine;
+        std::cout << "Borrower " << borrowerId << " has a fine of $" << fines[borrowerId] << std::endl;
+    }
+};
+
+int main() {
+    Library myLibrary;
+    myLibrary.addBook("1984", "George Orwell", "9780141036144");
+    myLibrary.addBook("To Kill a Mockingbird", "Harper Lee", "9780446310789");
+
+    myLibrary.searchBook("1984");
+    myLibrary.checkoutBook("9780141036144", "B001");
+    myLibrary.returnBook("9780141036144");
+    myLibrary.calculateFine("B001", 5);
+
+    return 0;
+}
