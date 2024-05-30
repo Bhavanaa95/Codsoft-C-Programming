@@ -1,0 +1,97 @@
+#include <iostream>
+#include <vector>
+#include <string>
+
+struct Task {
+    std::string description;
+    bool completed;
+
+    Task(const std::string& desc) : description(desc), completed(false) {}
+};
+
+class ToDoList {
+private:
+    std::vector<Task> tasks;
+
+public:
+    void addTask(const std::string& taskDescription) {
+        tasks.push_back(Task(taskDescription));
+        std::cout << "Task added successfully." << std::endl;
+    }
+
+    void viewTasks() const {
+        if (tasks.empty()) {
+            std::cout << "No tasks in the list." << std::endl;
+            return;
+        }
+        std::cout << "Tasks:\n";
+        for (size_t i = 0; i < tasks.size(); ++i) {
+            std::cout << i + 1 << ". " << tasks[i].description 
+                      << " [" << (tasks[i].completed ? "Completed" : "Pending") << "]" << std::endl;
+        }
+    }
+
+    void markTaskCompleted(int taskNumber) {
+        if (taskNumber > 0 && taskNumber <= tasks.size()) {
+            tasks[taskNumber - 1].completed = true;
+            std::cout << "Task " << taskNumber << " marked as completed." << std::endl;
+        } else {
+            std::cout << "Invalid task number." << std::endl;
+        }
+    }
+
+    void removeTask(int taskNumber) {
+        if (taskNumber > 0 && taskNumber <= tasks.size()) {
+            tasks.erase(tasks.begin() + (taskNumber - 1));
+            std::cout << "Task removed successfully." << std::endl;
+        } else {
+            std::cout << "Invalid task number." << std::endl;
+        }
+    }
+};
+
+int main() {
+    ToDoList myList;
+    int choice;
+    std::string taskDescription;
+    int taskNumber;
+
+    while (true) {
+        std::cout << "\nToDo List Application\n";
+        std::cout << "1. Add Task\n";
+        std::cout << "2. View Tasks\n";
+        std::cout << "3. Mark Task as Completed\n";
+        std::cout << "4. Remove Task\n";
+        std::cout << "5. Exit\n";
+        std::cout << "Enter your choice: ";
+        std::cin >> choice;
+        
+        switch (choice) {
+            case 1:
+                std::cout << "Enter a description for the new task: ";
+                std::cin.ignore();
+                std::getline(std::cin, taskDescription);
+                myList.addTask(taskDescription);
+                break;
+            case 2:
+                myList.viewTasks();
+                break;
+            case 3:
+                std::cout << "Enter the number of the task to mark as completed: ";
+                std::cin >> taskNumber;
+                myList.markTaskCompleted(taskNumber);
+                break;
+            case 4:
+                std::cout << "Enter the number of the task to remove: ";
+                std::cin >> taskNumber;
+                myList.removeTask(taskNumber);
+                break;
+            case 5:
+                std::cout << "Exiting application." << std::endl;
+                return 0;
+            default:
+                std::cout << "Invalid choice, please choose a valid option." << std::endl;
+        }
+    }
+    return 0;
+}
